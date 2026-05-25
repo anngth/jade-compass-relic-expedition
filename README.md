@@ -65,7 +65,7 @@ pnpm run dev
 **Gameplay**: Multiple endings, choice-based progression  
 **Accessibility**: Full keyboard navigation, ARIA labels, focus management  
 **Language**: Content generation in English or Vietnamese  
-**Technical**: Responsive design, localStorage for API keys, Next.js 15 + React 19+
+**Technical**: Responsive design, sessionStorage for API keys, server-side LLM proxy, Next.js 16 + React 19+
 
 ## 📝 Scripts
 
@@ -75,9 +75,12 @@ pnpm run dev
 
 ## 🔒 Security
 
-**API Keys**: Never logged or transmitted to our backend, sent directly to provider APIs  
-**Storage**: Browser localStorage, clearable via site data  
-**Production**: HTTPS recommended
+**API Keys**: Stored in browser sessionStorage; synced once to an encrypted httpOnly cookie via `/api/session`  
+**LLM Requests**: Proxied server-side; keys are never included in generate/test request bodies  
+**Session**: Requires `SESSION_SECRET` in production (see `.env.example`)  
+**Rate Limiting**: Per-session (or per-IP fallback) via middleware  
+**Headers**: CSP, X-Frame-Options, and related security headers enabled  
+**Production**: HTTPS required for secure cookies
 
 ---
 

@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { ContentLanguageType, IFullStoryResponse } from "@/types/game";
 import { BaseLLMProvider } from "./base";
-import { parseToFullStoryResponse } from "@/utils/response-parser";
+import { validateFullStoryResponse } from "@/lib/schemas/full-story";
 import { parseJSONResponse } from "@/utils/string";
 import { logger } from "../logger";
 
@@ -25,7 +25,6 @@ export class AnthropicProvider extends BaseLLMProvider {
 
     this.client = new Anthropic({
       apiKey: this.apiKey,
-      dangerouslyAllowBrowser: true,
     });
   }
 
@@ -80,7 +79,7 @@ export class AnthropicProvider extends BaseLLMProvider {
 
       const jsonText = parseJSONResponse<object>(content.text);
 
-      const parsedResponse = parseToFullStoryResponse(jsonText);
+      const parsedResponse = validateFullStoryResponse(jsonText);
 
       this.logResponse(
         requestId,

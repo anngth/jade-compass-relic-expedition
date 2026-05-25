@@ -2,17 +2,20 @@
 
 import React, { useState } from "react";
 import { useGame } from "@/contexts/game-context";
+import { useSettings } from "@/contexts/settings-context";
 import { toast } from "sonner";
+import { useProviderData } from "@/hooks/use-provider-data";
 import {
   GameHeader,
   IntroductionCard,
   NewAdventureCard,
   AIConfigurationCard,
-  providerData,
 } from "@/components/home";
 
 export function HomePage() {
-  const { startGame, apiKey, isLoadingSettings, settings } = useGame();
+  const { startGame } = useGame();
+  const { apiKey, isLoadingSettings, settings } = useSettings();
+  const providerData = useProviderData();
   const { provider } = settings?.providerConfig || {};
 
   const [showApiKey, setShowApiKey] = useState(false);
@@ -33,7 +36,7 @@ export function HomePage() {
       return "⚠️ Enter API Key to Start";
     }
     return `🚀 START ADVENTURE (${
-      providerData[provider ?? "openrouter"].providerName
+      providerData?.[provider ?? "openrouter"]?.providerName ?? "AI"
     })`;
   };
 

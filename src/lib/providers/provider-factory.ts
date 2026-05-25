@@ -1,149 +1,103 @@
 import { LLMProvider, IProviderConfig } from "@/types/game";
-import { OpenAIProvider } from "./openai";
-import { AnthropicProvider } from "./anthropic";
-import { GoogleProvider } from "./google";
-import { VercelAIProvider } from "./vercel";
-import { providerData } from "@/components/home";
-import { MistralProvider } from "./mistral";
+import { providerData } from "@/lib/providers/provider-data";
 
 export class ProviderFactory {
-  static create(config: IProviderConfig): LLMProvider {
+  static async create(config: IProviderConfig): Promise<LLMProvider> {
     const provider = config.provider ?? "openai";
     const apiKey = config.apiKeyManager?.[provider];
-    const providerInfo = (providerData as any)[provider];
+    const providerInfo = providerData[provider];
     const effectiveModel =
       config.model === "__custom__" && config.customModel
         ? config.customModel
-        : config.model ?? providerInfo?.defaultModel;
+        : (config.model ?? providerInfo?.defaultModel);
 
     switch (provider) {
-      case "openai":
+      case "openai": {
         if (!apiKey) {
           throw new Error("API key is required for OpenAI");
         }
+        const { OpenAIProvider } = await import("./openai");
         return new OpenAIProvider(
           apiKey,
           "OpenAI",
           providerData.openai.apiBase,
-          effectiveModel || providerData.openai.defaultModel
+          effectiveModel || providerData.openai.defaultModel,
         );
+      }
 
-      // Using OpenAIProvider for OpenRouter
-      case "openrouter":
+      case "openrouter": {
         if (!apiKey) {
           throw new Error("API key is required for OpenRouter");
         }
+        const { OpenAIProvider } = await import("./openai");
         return new OpenAIProvider(
           apiKey,
           "OpenRouter",
           providerData.openrouter.apiBase,
-          effectiveModel || providerData.openrouter.defaultModel
+          effectiveModel || providerData.openrouter.defaultModel,
         );
+      }
 
-      case "anthropic":
+      case "anthropic": {
         if (!apiKey) {
           throw new Error("API key is required for Anthropic");
         }
+        const { AnthropicProvider } = await import("./anthropic");
         return new AnthropicProvider(
           apiKey,
           "Anthropic",
           providerData.anthropic.apiBase,
-          effectiveModel || providerData.anthropic.defaultModel
+          effectiveModel || providerData.anthropic.defaultModel,
         );
+      }
 
-      case "google":
+      case "google": {
         if (!apiKey) {
           throw new Error("API key is required for Google");
         }
+        const { GoogleProvider } = await import("./google");
         return new GoogleProvider(
           apiKey,
           "Google",
           providerData.google.apiBase,
-          effectiveModel || providerData.google.defaultModel
+          effectiveModel || providerData.google.defaultModel,
         );
+      }
 
-      case "mistral":
+      case "mistral": {
         if (!apiKey) {
           throw new Error("API key is required for Mistral");
         }
+        const { MistralProvider } = await import("./mistral");
         return new MistralProvider(
           apiKey,
           "Mistral",
           providerData.mistral.apiBase,
-          effectiveModel || providerData.mistral.defaultModel
+          effectiveModel || providerData.mistral.defaultModel,
         );
+      }
 
       case "openai-ai-sdk":
-        if (!apiKey) {
-          throw new Error("API key is required for OpenAI AI SDK");
-        }
-        return new VercelAIProvider(
-          apiKey,
-          providerInfo.name,
-          providerInfo.apiBase,
-          effectiveModel || providerInfo.defaultModel,
-          provider
-        );
-
       case "anthropic-ai-sdk":
-        if (!apiKey) {
-          throw new Error("API key is required for Anthropic AI SDK");
-        }
-        return new VercelAIProvider(
-          apiKey,
-          providerInfo.name,
-          providerInfo.apiBase,
-          effectiveModel || providerInfo.defaultModel,
-          provider
-        );
-
       case "google-ai-sdk":
-        if (!apiKey) {
-          throw new Error("API key is required for Google AI SDK");
-        }
-        return new VercelAIProvider(
-          apiKey,
-          providerInfo.name,
-          providerInfo.apiBase,
-          effectiveModel || providerInfo.defaultModel,
-          provider
-        );
-
       case "groq-ai-sdk":
-        if (!apiKey) {
-          throw new Error("API key is required for Groq AI SDK");
-        }
-        return new VercelAIProvider(
-          apiKey,
-          providerInfo.name,
-          providerInfo.apiBase,
-          effectiveModel || providerInfo.defaultModel,
-          provider
-        );
-
       case "mistral-ai-sdk":
+      case "openrouter-ai-sdk": {
         if (!apiKey) {
-          throw new Error("API key is required for Mistral AI SDK");
+          throw new Error(
+            `API key is required for ${providerInfo.providerName}`,
+          );
         }
+        const { VercelAIProvider } = await import("./vercel");
         return new VercelAIProvider(
           apiKey,
-          providerInfo.name,
+          providerInfo.providerName,
           providerInfo.apiBase,
           effectiveModel || providerInfo.defaultModel,
-          provider
+          provider,
         );
+      }
 
-      case "openrouter-ai-sdk":
-        if (!apiKey) {
-          throw new Error("API key is required for OpenRouter AI SDK");
-        }
-        return new VercelAIProvider(
-          apiKey,
-          providerInfo.name,
-          providerInfo.apiBase,
-          effectiveModel || providerInfo.defaultModel,
-          provider
-        );
       default:
         throw new Error(`Unsupported provider: ${provider}`);
     }

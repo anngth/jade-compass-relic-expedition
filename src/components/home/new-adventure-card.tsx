@@ -1,5 +1,5 @@
 import React from "react";
-import { useGame } from "@/contexts/game-context";
+import { useSettings } from "@/contexts/settings-context";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,7 +28,7 @@ export function NewAdventureCard({
   canStart,
   startButtonText,
 }: NewAdventureCardProps) {
-  const { settings, updateSettings } = useGame();
+  const { settings, updateSettings } = useSettings();
   const { gameConfig } = settings;
 
   const onChangeRound = (e: React.ChangeEvent<HTMLInputElement>) =>

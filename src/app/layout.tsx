@@ -1,18 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Orbitron, Space_Mono } from "next/font/google";
+import { Orbitron, Space_Mono } from "next/font/google";
 import "./globals.css";
-import { GameProvider } from "@/contexts/game-context";
+import { SettingsProvider } from "@/contexts/settings-context";
+import { ErrorBoundary } from "@/components/error-boundary";
 import { Toaster } from "sonner";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 const orbitron = Orbitron({
   variable: "--font-orbitron",
@@ -37,25 +28,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${orbitron.variable} ${spaceMono.variable} antialiased`}
+        className={`${orbitron.variable} ${spaceMono.variable} antialiased`}
       >
-        <GameProvider>
-          {children}
-          <Toaster
-            position="top-center"
-            toastOptions={{
-              style: {
-                background: "var(--card)",
-                color: "var(--card-foreground)",
-                border: "2px solid var(--border)",
-                fontFamily: "var(--font-space-mono), monospace",
-                fontSize: "1rem",
-              },
-            }}
-          />
-        </GameProvider>
+        <ErrorBoundary>
+          <SettingsProvider>
+            {children}
+            <Toaster
+              position="top-center"
+              toastOptions={{
+                style: {
+                  background: "var(--card)",
+                  color: "var(--card-foreground)",
+                  border: "2px solid var(--border)",
+                  fontFamily: "var(--font-space-mono), monospace",
+                  fontSize: "1rem",
+                },
+              }}
+            />
+          </SettingsProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

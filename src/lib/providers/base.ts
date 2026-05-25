@@ -147,13 +147,13 @@ Response Format (JSON only):
     requestId: string,
     prompt: string,
     systemPrompt: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ) {
     logger.group(`[LLM ${this.name}] ${method} #${requestId}`);
-    logger.log("model:", this.model, "base:", this.apiBase);
+    logger.log("model:", this.model);
     if (metadata) logger.log("meta:", metadata);
-    logger.log("system:", systemPrompt);
-    logger.log("prompt:", prompt);
+    logger.log("system length:", systemPrompt.length);
+    logger.log("prompt length:", prompt.length);
     logger.groupEnd();
   }
 
@@ -164,7 +164,7 @@ Response Format (JSON only):
     parsedResponse?: object,
     responseTime?: number,
     error?: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ) {
     logger.group(`[LLM Response] #${requestId}`);
     if (typeof responseTime === "number") logger.log("ms:", responseTime);
@@ -172,17 +172,14 @@ Response Format (JSON only):
     if (error) {
       logger.error("error:", error);
     }
-
     if (response) {
-      logger.log("response :", response);
+      logger.log("response received:", typeof response === "string" ? `[${response.length} chars]` : "[object]");
     }
-
     if (json) {
-      logger.log("json :", json);
+      logger.log("json keys:", Object.keys(json));
     }
-
     if (parsedResponse) {
-      logger.log("parsedResponse :", parsedResponse);
+      logger.log("parsed rounds:", (parsedResponse as { rounds?: unknown[] }).rounds?.length ?? 0);
     }
     logger.groupEnd();
   }

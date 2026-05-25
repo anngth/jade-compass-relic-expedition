@@ -11,8 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, ChevronDown, Loader2 } from "lucide-react";
 import { ModelSelector } from "./model-selector";
 import { IProviderConfig, ProviderType } from "@/types/game";
-import { providerData } from "./constants";
-import { useGame } from "@/contexts/game-context";
+import { useProviderData } from "@/hooks/use-provider-data";
+import { useSettings } from "@/contexts/settings-context";
 
 interface AIConfigurationCardProps {
   showApiKey: boolean;
@@ -28,8 +28,9 @@ export function AIConfigurationCard({
     settings: { providerConfig },
     updateSettings,
     testConnection,
-    isLoading,
-  } = useGame();
+    isTestingConnection,
+  } = useSettings();
+  const providerData = useProviderData();
   const { provider } = providerConfig || {};
   const selectedProviderData = providerData?.[provider || "openai"];
 
@@ -37,6 +38,7 @@ export function AIConfigurationCard({
     const nextProvider =
       (e.target.value as IProviderConfig["provider"]) || "openai";
     const defaults = providerData?.[nextProvider];
+    if (!defaults) return;
     updateSettings({
       providerConfig: {
         ...(providerConfig || {}),
@@ -87,18 +89,20 @@ export function AIConfigurationCard({
                 value={provider || "openai"}
                 onChange={updateProvider}
               >
-                {Object.keys(providerData).map((providerKey) => {
-                  const data = providerData[providerKey as ProviderType];
-                  return (
-                    <option
-                      key={providerKey}
-                      value={providerKey}
-                      className="font-retro text-xs text-[var(--primary)]"
-                    >
-                      {data.providerName}
-                    </option>
-                  );
-                })}
+                {providerData
+                  ? Object.keys(providerData).map((providerKey) => {
+                      const data = providerData[providerKey as ProviderType];
+                      return (
+                        <option
+                          key={providerKey}
+                          value={providerKey}
+                          className="font-retro text-xs text-[var(--primary)]"
+                        >
+                          {data.providerName}
+                        </option>
+                      );
+                    })
+                  : null}
               </select>
               <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted-foreground)]" />
             </div>
@@ -108,9 +112,9 @@ export function AIConfigurationCard({
               size="sm"
               className="px-4 font-pixel text-xs"
               onClick={handleTestConnection}
-              disabled={isLoading || !apiKey}
+              disabled={isTestingConnection || !apiKey}
             >
-              {isLoading ? (
+              {isTestingConnection ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 "Test Connection"
@@ -150,6 +154,9 @@ export function AIConfigurationCard({
               value={apiKey || ""}
               onChange={updateApiKey}
               className="font-mono pr-8 text-xs"
+              autoComplete="off"
+              data-lpignore="true"
+              data-form-type="other"
             />
             <Button
               type="button"
@@ -166,7 +173,7 @@ export function AIConfigurationCard({
             </Button>
           </div>
           <p className="font-retro text-xs text-[var(--muted-foreground)] mt-1">
-            🔒 Not saved - enter each session
+            Session only — key syncs to a secure httpOnly cookie for LLM requests
           </p>
         </div>
 
@@ -178,15 +185,16 @@ export function AIConfigurationCard({
           <div className="flex items-start space-x-2">
             <span className="text-[var(--accent)] text-sm">💾</span>
             <p className="font-retro text-xs text-[var(--muted-foreground)]">
-              <strong>Auto-save:</strong> All settings are saved automatically
-              when changed
+              <strong>Auto-save:</strong> Game settings are saved automatically
+              (API keys are excluded)
             </p>
           </div>
 
           <div className="flex items-start space-x-2">
             <span className="text-[var(--accent)] text-sm">🔒</span>
             <p className="font-retro text-xs text-[var(--muted-foreground)]">
-              <strong>Security:</strong> API keys are never stored permanently
+              <strong>Security:</strong> Keys are stored in session storage and
+              encrypted in an httpOnly cookie — never sent in LLM request bodies
             </p>
           </div>
 

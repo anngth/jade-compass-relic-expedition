@@ -1,12 +1,27 @@
 "use client";
 
+import dynamic from "next/dynamic";
+import { GameProvider } from "@/contexts/game-context";
 import { useGame } from "@/contexts/game-context";
-import { HomePage } from "@/components/pages/home";
-import { GamePage } from "@/components/pages/game";
-import { VictoryPage } from "@/components/pages/victory";
-import { FailurePage } from "@/components/pages/failure";
 
-export default function Home() {
+const HomePage = dynamic(() =>
+  import("@/components/pages/home").then((mod) => ({ default: mod.HomePage }))
+);
+const GamePage = dynamic(() =>
+  import("@/components/pages/game").then((mod) => ({ default: mod.GamePage }))
+);
+const VictoryPage = dynamic(() =>
+  import("@/components/pages/victory").then((mod) => ({
+    default: mod.VictoryPage,
+  }))
+);
+const FailurePage = dynamic(() =>
+  import("@/components/pages/failure").then((mod) => ({
+    default: mod.FailurePage,
+  }))
+);
+
+function GameRouter() {
   const { gameState } = useGame();
 
   switch (gameState.status) {
@@ -21,4 +36,12 @@ export default function Home() {
     default:
       return <HomePage />;
   }
+}
+
+export default function Home() {
+  return (
+    <GameProvider>
+      <GameRouter />
+    </GameProvider>
+  );
 }

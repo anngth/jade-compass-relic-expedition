@@ -1,7 +1,7 @@
 import { Mistral } from "@mistralai/mistralai";
 import { ContentLanguageType, IFullStoryResponse } from "@/types/game";
 import { BaseLLMProvider } from "./base";
-import { parseToFullStoryResponse } from "@/utils/response-parser";
+import { validateFullStoryResponse } from "@/lib/schemas/full-story";
 import { parseJSONResponse } from "@/utils/string";
 import { logger } from "../logger";
 
@@ -30,7 +30,7 @@ export class MistralProvider extends BaseLLMProvider {
     totalRounds: number,
     choicesPerRound: number,
     contentLanguage: ContentLanguageType,
-    seed: string
+    seed: string,
   ): Promise<IFullStoryResponse> {
     const requestId = this.generateRequestId();
     const systemPrompt = this.createFullStorySystemPrompt({
@@ -39,7 +39,7 @@ export class MistralProvider extends BaseLLMProvider {
     const prompt = this.createFullStoryPrompt(
       totalRounds,
       choicesPerRound,
-      true
+      true,
     );
 
     this.logRequest("generateFullStory", requestId, prompt, systemPrompt, {
@@ -74,9 +74,9 @@ export class MistralProvider extends BaseLLMProvider {
       });
 
       const jsonText = parseJSONResponse<object>(
-        (response.choices[0].message.content as string) || ""
+        (response.choices[0].message.content as string) || "",
       );
-      const parsedResponse = parseToFullStoryResponse(jsonText);
+      const parsedResponse = validateFullStoryResponse(jsonText);
 
       this.logResponse(
         requestId,
@@ -85,7 +85,7 @@ export class MistralProvider extends BaseLLMProvider {
         parsedResponse,
         responseTime,
         undefined,
-        undefined
+        undefined,
       );
 
       return parsedResponse;
@@ -101,7 +101,7 @@ export class MistralProvider extends BaseLLMProvider {
         undefined,
         responseTime,
         errorMessage,
-        undefined
+        undefined,
       );
 
       throw new Error(`Failed to generate story: ${errorMessage}`);

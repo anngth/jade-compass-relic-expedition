@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { ContentLanguageType, IFullStoryResponse } from "@/types/game";
 import { BaseLLMProvider } from "./base";
-import { parseToFullStoryResponse } from "@/utils/response-parser";
+import { validateFullStoryResponse } from "@/lib/schemas/full-story";
 import { parseJSONResponse } from "@/utils/string";
 import { logger } from "../logger";
 
@@ -72,7 +72,7 @@ export class GoogleProvider extends BaseLLMProvider {
       const responseTime = Date.now() - startTime;
 
       const jsonText = parseJSONResponse<object>(content);
-      const parsedResponse = parseToFullStoryResponse(jsonText);
+      const parsedResponse = validateFullStoryResponse(jsonText);
 
       this.logResponse(
         requestId,

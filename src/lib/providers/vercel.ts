@@ -12,67 +12,40 @@ import {
   OpenRouterProvider,
 } from "@openrouter/ai-sdk-provider";
 import { generateObject, generateText } from "ai";
-import { z } from "zod";
 import {
   ContentLanguageType,
   IFullStoryResponse,
   AISDKProviderType,
 } from "@/types/game";
 import { BaseLLMProvider } from "./base";
-import { parseToFullStoryResponse } from "@/utils/response-parser";
+import {
+  FullStoryObjectSchema,
+  validateFullStoryResponse,
+} from "@/lib/schemas/full-story";
 import { parseJSONResponse } from "@/utils/string";
+import { logger } from "../logger";
 
-// Define the schema for the story response
-const FullStorySchema = z.object({
-  intro: z.string(),
-  overallTheme: z.string(),
-  rounds: z.array(
-    z.object({
-      intro: z.string(),
-      round: z.number(),
-      location: z.string(),
-      narrativeState: z.object({
-        location: z.string(),
-        status: z.string(),
-        initItems: z.array(z.string()),
-        storyProgress: z.string().optional(),
-      }),
-      choices: z.array(
-        z.object({
-          id: z.string(),
-          title: z.string(),
-          summary: z.string(),
-          isCorrect: z.boolean(),
-          consequence: z.string(),
-          finalItems: z.array(z.string()),
-        })
-      ),
-      failureSummary: z.string().optional(),
-    })
-  ),
-});
-
+// Schema imported from shared module for generateObject
 export class VercelAIProvider extends BaseLLMProvider {
   name: string;
   protected apiKey: string;
   protected apiBase: string;
   protected model: string;
   private aiProvider: AISDKProviderType;
-  private client: any;
 
-  private openai: OpenAIProvider;
-  private anthropic: AnthropicProvider;
-  private google: GoogleGenerativeAIProvider;
-  private groq: GroqProvider;
-  private mistral: MistralProvider;
-  private openrouter: OpenRouterProvider;
+  private openai?: OpenAIProvider;
+  private anthropic?: AnthropicProvider;
+  private google?: GoogleGenerativeAIProvider;
+  private groq?: GroqProvider;
+  private mistral?: MistralProvider;
+  private openrouter?: OpenRouterProvider;
 
   constructor(
     apiKey: string,
     name: string,
     apiBase: string,
     model: string,
-    aiProvider: AISDKProviderType = "openai-ai-sdk"
+    aiProvider: AISDKProviderType = "openai-ai-sdk",
   ) {
     super(apiKey, apiBase, model);
     this.name = name;
@@ -84,30 +57,39 @@ export class VercelAIProvider extends BaseLLMProvider {
     if (!apiKey) {
       throw new Error(`${name} API key is required`);
     }
-
-    this.openai = createOpenAI({ apiKey });
-    this.anthropic = createAnthropic({ apiKey });
-    this.google = createGoogleGenerativeAI({ apiKey });
-    this.groq = createGroq({ apiKey });
-    this.mistral = createMistral({ apiKey });
-    this.openrouter = createOpenRouter({ apiKey });
-
-    this.client = this.getAIModel();
   }
 
   private getAIModel(): LanguageModelV2 {
     switch (this.aiProvider) {
       case "openai-ai-sdk":
+        if (!this.openai) {
+          this.openai = createOpenAI({ apiKey: this.apiKey });
+        }
         return this.openai(this.model);
       case "anthropic-ai-sdk":
+        if (!this.anthropic) {
+          this.anthropic = createAnthropic({ apiKey: this.apiKey });
+        }
         return this.anthropic(this.model);
       case "google-ai-sdk":
+        if (!this.google) {
+          this.google = createGoogleGenerativeAI({ apiKey: this.apiKey });
+        }
         return this.google(this.model);
       case "groq-ai-sdk":
+        if (!this.groq) {
+          this.groq = createGroq({ apiKey: this.apiKey });
+        }
         return this.groq(this.model);
       case "mistral-ai-sdk":
+        if (!this.mistral) {
+          this.mistral = createMistral({ apiKey: this.apiKey });
+        }
         return this.mistral(this.model);
       case "openrouter-ai-sdk":
+        if (!this.openrouter) {
+          this.openrouter = createOpenRouter({ apiKey: this.apiKey });
+        }
         return this.openrouter(this.model);
       default:
         throw new Error(`Unsupported AI provider: ${this.aiProvider}`);
@@ -118,7 +100,7 @@ export class VercelAIProvider extends BaseLLMProvider {
     totalRounds: number,
     choicesPerRound: number,
     contentLanguage: ContentLanguageType,
-    seed: string
+    seed: string,
   ): Promise<IFullStoryResponse> {
     const requestId = this.generateRequestId();
     const systemPrompt = this.createFullStorySystemPrompt({
@@ -127,7 +109,7 @@ export class VercelAIProvider extends BaseLLMProvider {
     const prompt = this.createFullStoryPrompt(
       totalRounds,
       choicesPerRound,
-      true
+      true,
     );
 
     this.logRequest("generateFullStory", requestId, prompt, systemPrompt, {
@@ -154,7 +136,7 @@ export class VercelAIProvider extends BaseLLMProvider {
       const responseTime = Date.now() - startTime;
 
       const jsonText = parseJSONResponse<object>(response.text);
-      const parsedResponse = parseToFullStoryResponse(jsonText);
+      const parsedResponse = validateFullStoryResponse(jsonText);
 
       this.logResponse(
         requestId,
@@ -163,7 +145,7 @@ export class VercelAIProvider extends BaseLLMProvider {
         parsedResponse,
         responseTime,
         undefined,
-        undefined
+        undefined,
       );
 
       return parsedResponse;
@@ -179,7 +161,7 @@ export class VercelAIProvider extends BaseLLMProvider {
         undefined,
         responseTime,
         errorMessage,
-        undefined
+        undefined,
       );
 
       throw new Error(`Failed to generate story: ${errorMessage}`);
@@ -190,7 +172,7 @@ export class VercelAIProvider extends BaseLLMProvider {
     totalRounds: number,
     choicesPerRound: number,
     contentLanguage: ContentLanguageType,
-    seed: string
+    seed: string,
   ): Promise<IFullStoryResponse> {
     const requestId = this.generateRequestId();
     const systemPrompt = this.createFullStorySystemPrompt({
@@ -201,7 +183,7 @@ export class VercelAIProvider extends BaseLLMProvider {
     const prompt = this.createFullStoryPrompt(
       totalRounds,
       choicesPerRound,
-      false
+      false,
     );
 
     this.logRequest("generateFullStory", requestId, prompt, systemPrompt, {
@@ -219,7 +201,7 @@ export class VercelAIProvider extends BaseLLMProvider {
 
       const response = await generateObject({
         model: this.getAIModel(),
-        schema: FullStorySchema,
+        schema: FullStoryObjectSchema,
         system: systemPrompt,
         prompt: prompt,
         temperature: 0.7,
@@ -229,7 +211,7 @@ export class VercelAIProvider extends BaseLLMProvider {
       const responseTime = Date.now() - startTime;
 
       // parse for logs, not need to return
-      const parsedResponse = parseToFullStoryResponse(response.object);
+      const parsedResponse = validateFullStoryResponse(response.object);
 
       this.logResponse(
         requestId,
@@ -238,10 +220,10 @@ export class VercelAIProvider extends BaseLLMProvider {
         parsedResponse,
         responseTime,
         undefined,
-        undefined
+        undefined,
       );
 
-      return response.object;
+      return parsedResponse;
     } catch (error) {
       const responseTime = Date.now() - startTime;
       const errorMessage =
@@ -254,7 +236,7 @@ export class VercelAIProvider extends BaseLLMProvider {
         undefined,
         responseTime,
         errorMessage,
-        undefined
+        undefined,
       );
 
       throw new Error(`Failed to generate story: ${errorMessage}`);
@@ -269,7 +251,7 @@ export class VercelAIProvider extends BaseLLMProvider {
         model: this.getAIModel(),
         prompt: "only return: OK",
       });
-      console.log("result :", result);
+      logger.debug("Connection test result:", result.text);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);

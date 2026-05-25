@@ -1,4 +1,3 @@
-import { get } from "lodash";
 import {
   IFullStoryResponse,
   IGameRound,
@@ -6,18 +5,36 @@ import {
   INarrativeState,
 } from "@/types/game";
 
+function readPath(obj: unknown, ...keys: string[]): unknown {
+  if (!obj || typeof obj !== "object") return undefined;
+  let current: unknown = obj;
+  for (const key of keys) {
+    if (current == null || typeof current !== "object") return undefined;
+    current = (current as Record<string, unknown>)[key];
+  }
+  return current;
+}
+
+function readString(obj: unknown, ...keys: string[]): string {
+  const value = readPath(obj, ...keys);
+  return typeof value === "string" ? value : "";
+}
+
 /**
- * Parses a raw response object to IFullStoryResponse using lodash get
- * @param rawResponse - The raw response object from LLM
- * @returns Parsed IFullStoryResponse
+ * Parses a raw response object to IFullStoryResponse
  */
-export function parseToFullStoryResponse(rawResponse: any): IFullStoryResponse {
-  const intro = get(rawResponse, "intro", "");
+export function parseToFullStoryResponse(
+  rawResponse: unknown,
+): IFullStoryResponse {
+  const intro = readString(rawResponse, "intro");
   const overallTheme =
-    get(rawResponse, "overallTheme") || get(rawResponse, "overall_theme", "");
-  const roundsRaw = get(rawResponse, "rounds", []);
+    readString(rawResponse, "overallTheme") ||
+    readString(rawResponse, "overall_theme");
+  const roundsRaw = readPath(rawResponse, "rounds");
   const rounds = Array.isArray(roundsRaw)
-    ? roundsRaw.map((round: any, index: number) => parseGameRound(round, index))
+    ? roundsRaw.map((round: unknown, index: number) =>
+        parseGameRound(round, index),
+      )
     : [];
 
   return {
@@ -27,92 +44,106 @@ export function parseToFullStoryResponse(rawResponse: any): IFullStoryResponse {
   };
 }
 
-function parseGameRound(round: any, index: number): IGameRound {
-  const intro = get(round, "intro") || get(round, "description", "");
-  const roundNumber = get(round, "round") || get(round, "id") || index + 1;
-  const location = get(round, "location", "");
+function parseGameRound(round: unknown, index: number): IGameRound {
+  const intro = readString(round, "intro") || readString(round, "description");
+  const roundNumber =
+    readPath(round, "round") ?? readPath(round, "id") ?? index + 1;
+  const location = readString(round, "location");
   const narrativeState = parseNarrativeState(round);
-  const choicesRaw = get(round, "choices", []);
+  const choicesRaw = readPath(round, "choices");
   const choices = Array.isArray(choicesRaw)
-    ? choicesRaw.map((choice: any) => parseChoice(choice))
+    ? choicesRaw.map((choice: unknown) => parseChoice(choice))
     : [];
   const failureSummary =
-    get(round, "failureSummary") || get(round, "failure_summary");
+    readString(round, "failureSummary") || readString(round, "failure_summary");
 
   return {
     intro,
-    round:
-      typeof roundNumber === "string"
-        ? Number.isFinite(parseInt(roundNumber, 10)) &&
-          parseInt(roundNumber, 10) > 0
-          ? parseInt(roundNumber, 10)
-          : index + 1
-        : Number.isFinite(roundNumber) && roundNumber > 0
-        ? roundNumber
-        : index + 1,
+    round: normalizeRoundNumber(roundNumber, index),
     location,
     narrativeState,
     choices,
-    failureSummary,
+    failureSummary: failureSummary || undefined,
   };
 }
 
-function parseNarrativeState(round: any): INarrativeState {
+function normalizeRoundNumber(roundNumber: unknown, index: number): number {
+  if (typeof roundNumber === "string") {
+    const parsed = parseInt(roundNumber, 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : index + 1;
+  }
+  if (
+    typeof roundNumber === "number" &&
+    Number.isFinite(roundNumber) &&
+    roundNumber > 0
+  ) {
+    return roundNumber;
+  }
+  return index + 1;
+}
+
+function parseNarrativeState(round: unknown): INarrativeState {
   const narrativeState =
-    get(round, "narrativeState") || get(round, "narrative_state", {});
-  const location = get(narrativeState, "location", "");
-  const status = get(narrativeState, "status", "");
+    readPath(round, "narrativeState") ??
+    readPath(round, "narrative_state") ??
+    {};
+  const location = readString(narrativeState, "location");
+  const status = readString(narrativeState, "status");
   const initItems =
-    get(narrativeState, "initItems") ||
-    get(narrativeState, "items") ||
-    get(narrativeState, "init_items", []);
+    readPath(narrativeState, "initItems") ??
+    readPath(narrativeState, "items") ??
+    readPath(narrativeState, "init_items");
   const storyProgress =
-    get(narrativeState, "storyProgress") ||
-    get(narrativeState, "story_progress");
+    readString(narrativeState, "storyProgress") ||
+    readString(narrativeState, "story_progress");
 
   return {
     location,
     status,
     initItems: Array.isArray(initItems)
-      ? initItems.filter((item: any) => typeof item === "string")
+      ? initItems.filter((item): item is string => typeof item === "string")
       : [],
-    storyProgress,
+    storyProgress: storyProgress || undefined,
   };
 }
 
-function toBoolean(v: unknown): boolean {
-  if (typeof v === "boolean") return v;
-  if (typeof v === "number") return v !== 0;
-  if (typeof v === "string") {
-    const s = v.trim().toLowerCase();
-    return s === "true" || s === "yes" || s === "y" || s === "1";
+function toBoolean(value: unknown): boolean {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value !== 0;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    return (
+      normalized === "true" ||
+      normalized === "yes" ||
+      normalized === "y" ||
+      normalized === "1"
+    );
   }
   return false;
 }
 
-function parseChoice(choice: any): IChoice {
-  const id = get(choice, "id", "");
-  const title = get(choice, "title", "");
-  const summary = get(choice, "summary", "");
+function parseChoice(choice: unknown): IChoice {
+  const id = readString(choice, "id");
+  const title = readString(choice, "title");
+  const summary = readString(choice, "summary");
   const isCorrectRaw =
-    get(choice, "isCorrect") ??
-    get(choice, "is_correct") ??
-    get(choice, "correct");
-  const isCorrect = toBoolean(isCorrectRaw);
-  const consequence = get(choice, "consequence", "");
+    readPath(choice, "isCorrect") ??
+    readPath(choice, "is_correct") ??
+    readPath(choice, "correct");
+  const consequence = readString(choice, "consequence");
   const finalItems =
-    get(choice, "finalItems") ||
-    get(choice, "final_items") ||
-    get(choice, "items", []);
+    readPath(choice, "finalItems") ??
+    readPath(choice, "final_items") ??
+    readPath(choice, "items");
 
   return {
     id,
     title,
     summary,
-    isCorrect,
+    isCorrect: toBoolean(isCorrectRaw),
     consequence,
     finalItems: Array.isArray(finalItems)
-      ? finalItems.filter((item: any) => typeof item === "string")
+      ? finalItems.filter((item): item is string => typeof item === "string")
       : [],
   };
 }

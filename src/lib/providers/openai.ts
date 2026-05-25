@@ -1,7 +1,7 @@
 import { OpenAI } from "openai";
 import { ContentLanguageType, IFullStoryResponse } from "@/types/game";
 import { BaseLLMProvider } from "./base";
-import { parseToFullStoryResponse } from "@/utils/response-parser";
+import { validateFullStoryResponse } from "@/lib/schemas/full-story";
 import { parseJSONResponse } from "@/utils/string";
 import { logger } from "../logger";
 
@@ -26,7 +26,6 @@ export class OpenAIProvider extends BaseLLMProvider {
     this.client = new OpenAI({
       apiKey: this.apiKey,
       baseURL: this.apiBase,
-      dangerouslyAllowBrowser: true,
       defaultHeaders: {
         //   "HTTP-Referer": "https://jade-compass.vercel.app",
         "X-Title": "Jade Compass: Relic Expedition",
@@ -38,7 +37,7 @@ export class OpenAIProvider extends BaseLLMProvider {
     totalRounds: number,
     choicesPerRound: number,
     contentLanguage: ContentLanguageType,
-    seed: string
+    seed: string,
   ): Promise<IFullStoryResponse> {
     const requestId = this.generateRequestId();
     const systemPrompt = this.createFullStorySystemPrompt({
@@ -47,7 +46,7 @@ export class OpenAIProvider extends BaseLLMProvider {
     const prompt = this.createFullStoryPrompt(
       totalRounds,
       choicesPerRound,
-      true
+      true,
     );
 
     this.logRequest("generateFullStory", requestId, prompt, systemPrompt, {
@@ -81,7 +80,7 @@ export class OpenAIProvider extends BaseLLMProvider {
       const responseTime = Date.now() - startTime;
 
       const jsonText = parseJSONResponse<object>(content);
-      const parsedResponse = parseToFullStoryResponse(jsonText);
+      const parsedResponse = validateFullStoryResponse(jsonText);
 
       this.logResponse(
         requestId,
@@ -90,7 +89,7 @@ export class OpenAIProvider extends BaseLLMProvider {
         parsedResponse,
         responseTime,
         undefined,
-        undefined
+        undefined,
       );
 
       return parsedResponse;
@@ -106,7 +105,7 @@ export class OpenAIProvider extends BaseLLMProvider {
         undefined,
         responseTime,
         errorMessage,
-        undefined
+        undefined,
       );
 
       throw new Error(`Failed to generate story: ${errorMessage}`);

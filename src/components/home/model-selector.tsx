@@ -1,11 +1,12 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { ChevronDown } from "lucide-react";
-import { providerData } from "./constants";
-import { useGame } from "@/contexts/game-context";
+import { useProviderData } from "@/hooks/use-provider-data";
+import { useSettings } from "@/contexts/settings-context";
 
 export function ModelSelector() {
-  const { settings, updateSettings } = useGame();
+  const { settings, updateSettings } = useSettings();
+  const providerData = useProviderData();
   const { providerConfig } = settings;
   const provider = providerConfig?.provider || "openai";
   const providerInfo = providerData?.[provider];

@@ -1,14 +1,47 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { memo, useEffect, useState, useCallback, useMemo } from "react";
 import { useGame } from "@/contexts/game-context";
+import { useSettings } from "@/contexts/settings-context";
 import { IChoice } from "@/types/game";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
+interface ChoiceCardProps {
+  choice: IChoice;
+  index: number;
+  className: string;
+  onClick: () => void;
+}
+
+const ChoiceCard = memo(function ChoiceCard({
+  choice,
+  index,
+  className,
+  onClick,
+}: ChoiceCardProps) {
+  return (
+    <Card key={choice.id} className={className} onClick={onClick}>
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <span>{choice.title}</span>
+          <span className="font-pixel text-sm text-[var(--muted-foreground)]">
+            [{index + 1}]
+          </span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="font-retro text-[var(--muted-foreground)]">
+          {choice.summary}
+        </p>
+      </CardContent>
+    </Card>
+  );
+});
+
 export function GamePage() {
-  const { settings, gameState, makeChoice, currentRoundData, isLoading } =
-    useGame();
+  const { gameState, makeChoice, currentRoundData, isLoading } = useGame();
+  const { settings } = useSettings();
 
   const [selectedChoice, setSelectedChoice] = useState<IChoice | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -21,7 +54,6 @@ export function GamePage() {
       setIsProcessing(true);
 
       try {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
         await makeChoice(choice);
       } catch (error) {
         console.error("Error making choice:", error);
@@ -210,25 +242,13 @@ export function GamePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {currentRoundData?.choices.map((choice, index) => (
-            <Card
+            <ChoiceCard
               key={choice.id}
+              choice={choice}
+              index={index}
               className={getChoiceCardClassName(choice)}
               onClick={createChoiceClickHandler(choice)}
-            >
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>{choice.title}</span>
-                  <span className="font-pixel text-sm text-[var(--muted-foreground)]">
-                    [{index + 1}]
-                  </span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="font-retro text-[var(--muted-foreground)]">
-                  {choice.summary}
-                </p>
-              </CardContent>
-            </Card>
+            />
           ))}
         </div>
       </div>

@@ -2,12 +2,14 @@
 
 import React from "react";
 import { useGame } from "@/contexts/game-context";
+import { useSettings } from "@/contexts/settings-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trophy, Sparkles } from "lucide-react";
 
 export function VictoryPage() {
-  const { gameState, settings, resetGame } = useGame();
+  const { gameState, resetGame } = useGame();
+  const { settings } = useSettings();
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
