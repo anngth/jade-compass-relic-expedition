@@ -56,47 +56,47 @@
 }
 
 .theme-jade-home {
-  --background: #06131a;
-  --foreground: #e8fff8;
-  --card: #0d2530;
-  --card-foreground: #f2fffb;
-  --primary: #2dd4bf;
-  --primary-foreground: #031411;
-  --secondary: #14505c;
-  --secondary-foreground: #e8fff8;
-  --accent: #f97316;
+  --background: #030b10;
+  --foreground: #d9f7ee;
+  --card: #081923;
+  --card-foreground: #ecfff9;
+  --primary: #20bba9;
+  --primary-foreground: #02100d;
+  --secondary: #0d3c46;
+  --secondary-foreground: #d9f7ee;
+  --accent: #e46213;
   --accent-foreground: #1a0b03;
   --destructive: #fb7185;
   --destructive-foreground: #22030a;
-  --muted: #0a1d28;
-  --muted-foreground: #a7d8d2;
-  --border: #38bdf8;
-  --input: #38bdf8;
-  --ring: #f97316;
-  --page-glow-primary: rgba(45, 212, 191, 0.26);
-  --page-glow-secondary: rgba(249, 115, 22, 0.2);
+  --muted: #06151e;
+  --muted-foreground: #91c8c0;
+  --border: #1f8fb8;
+  --input: #1f8fb8;
+  --ring: #e46213;
+  --page-glow-primary: rgba(32, 187, 169, 0.16);
+  --page-glow-secondary: rgba(228, 98, 19, 0.12);
 }
 
 .theme-astral-codex {
-  --background: #07051b;
-  --foreground: #f5f3ff;
-  --card: #151033;
-  --card-foreground: #ffffff;
-  --primary: #8b5cf6;
+  --background: #030214;
+  --foreground: #ebe7ff;
+  --card: #0d0924;
+  --card-foreground: #f7f4ff;
+  --primary: #7650d8;
   --primary-foreground: #ffffff;
-  --secondary: #2563eb;
-  --secondary-foreground: #eff6ff;
-  --accent: #22d3ee;
+  --secondary: #1d4fbf;
+  --secondary-foreground: #e8f0ff;
+  --accent: #18b8d0;
   --accent-foreground: #02131a;
   --destructive: #f43f5e;
   --destructive-foreground: #ffffff;
-  --muted: #0e1538;
-  --muted-foreground: #c4b5fd;
-  --border: #6d28d9;
-  --input: #6d28d9;
-  --ring: #22d3ee;
-  --page-glow-primary: rgba(139, 92, 246, 0.3);
-  --page-glow-secondary: rgba(34, 211, 238, 0.2);
+  --muted: #080d28;
+  --muted-foreground: #afa1ea;
+  --border: #5422b4;
+  --input: #5422b4;
+  --ring: #18b8d0;
+  --page-glow-primary: rgba(118, 80, 216, 0.18);
+  --page-glow-secondary: rgba(24, 184, 208, 0.12);
 }
 
 body {
