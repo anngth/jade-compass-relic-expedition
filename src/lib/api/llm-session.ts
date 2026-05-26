@@ -12,7 +12,8 @@ async function parseApiError(response: Response): Promise<string> {
 function stripApiKeys(
   providerConfig: IProviderConfig
 ): Omit<IProviderConfig, "apiKeyManager"> {
-  const { apiKeyManager: _keys, ...safeConfig } = providerConfig;
+  const safeConfig = { ...providerConfig };
+  delete safeConfig.apiKeyManager;
   return safeConfig;
 }
 

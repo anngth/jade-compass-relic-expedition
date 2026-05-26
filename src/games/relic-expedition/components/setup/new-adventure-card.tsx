@@ -74,69 +74,67 @@ export function NewAdventureCard({
   };
 
   return (
-    <Card className="relative flex-1">
-      <CardHeader>
-        <CardTitle>New Adventure</CardTitle>
-        <CardDescription className="text-xs">
+    <Card className="relative flex-1 p-4">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-xl">New Adventure</CardTitle>
+        <CardDescription className="text-sm">
           Configure your new adventure
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent>
         {/* Game Settings */}
-        <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="font-pixel text-sm mb-2 block">
-                Rounds (2-10)
-              </label>
-              <Input
-                type="number"
-                min="2"
-                max="10"
-                value={gameConfig?.rounds ?? 2}
-                onChange={onChangeRound}
-                className="w-full"
-              />
-            </div>
-            <div>
-              <label className="font-pixel text-sm mb-2 block">
-                Choices (2-5)
-              </label>
-              <Input
-                type="number"
-                min="2"
-                max="5"
-                value={gameConfig?.choicesPerRound ?? 2}
-                onChange={onChangeChoicesPerRound}
-                className="w-full"
-              />
-            </div>
-            <div>
-              <label className="font-pixel text-sm mb-2 block">Language</label>
-              <Select
-                value={gameConfig?.contentLanguage ?? "English"}
-                onValueChange={onChangeContentLanguage}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select language" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="English">English</SelectItem>
-                  <SelectItem value="Vietnamese">Vietnamese</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[0.9fr_0.9fr_0.9fr_1.4fr] lg:items-end">
+          <div>
+            <label className="font-pixel mb-1.5 block text-base">
+              Rounds (2-10)
+            </label>
+            <Input
+              type="number"
+              min="2"
+              max="10"
+              value={gameConfig?.rounds ?? 2}
+              onChange={onChangeRound}
+              className="w-full"
+            />
           </div>
+          <div>
+            <label className="font-pixel mb-1.5 block text-base">
+              Choices (2-5)
+            </label>
+            <Input
+              type="number"
+              min="2"
+              max="5"
+              value={gameConfig?.choicesPerRound ?? 2}
+              onChange={onChangeChoicesPerRound}
+              className="w-full"
+            />
+          </div>
+          <div>
+            <label className="font-pixel mb-1.5 block text-base">
+              Language
+            </label>
+            <Select
+              value={gameConfig?.contentLanguage ?? "English"}
+              onValueChange={onChangeContentLanguage}
+            >
+              <SelectTrigger className="w-full rounded-none border-2 border-[var(--input)] pixel-shadow">
+                <SelectValue placeholder="Select language" />
+              </SelectTrigger>
+              <SelectContent side="top">
+                <SelectItem value="English">English</SelectItem>
+                <SelectItem value="Vietnamese">Vietnamese</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Button
+            className="pulse h-14 w-full whitespace-nowrap border-2 border-[var(--accent)] bg-[linear-gradient(135deg,var(--primary),var(--secondary))] px-5 text-base uppercase tracking-[0.08em] shadow-[0_0_0_2px_rgba(0,0,0,0.35),0_4px_0_rgba(0,0,0,0.35)] hover:brightness-110 sm:text-lg"
+            onClick={onStartGame}
+            disabled={!canStart}
+          >
+            {startButtonText}
+          </Button>
         </div>
-
-        {/* Start Button */}
-        <Button
-          className="w-full text-lg pulse"
-          onClick={onStartGame}
-          disabled={!canStart}
-        >
-          {startButtonText}
-        </Button>
       </CardContent>
     </Card>
   );

@@ -18,6 +18,7 @@ interface SelectTriggerProps {
 interface SelectContentProps {
   children: React.ReactNode;
   className?: string;
+  side?: "top" | "bottom";
 }
 
 interface SelectItemProps {
@@ -75,6 +76,7 @@ export function SelectTrigger({
 export function SelectContent({
   children,
   className = "",
+  side = "bottom",
 }: SelectContentProps) {
   const context = React.useContext(SelectContext);
   if (!context) {
@@ -102,11 +104,16 @@ export function SelectContent({
 
   if (!isOpen) return null;
 
+  const positionStyle =
+    side === "top"
+      ? { bottom: "100%", left: 0, right: 0, marginBottom: "4px" }
+      : { top: "100%", left: 0, right: 0, marginTop: "4px" };
+
   return (
     <div
       data-select
       className={`absolute z-50 min-w-[8rem] overflow-hidden rounded-md border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] shadow-md ${className}`}
-      style={{ top: "100%", left: 0, right: 0, marginTop: "4px" }}
+      style={positionStyle}
     >
       <div className="p-1">{children}</div>
     </div>

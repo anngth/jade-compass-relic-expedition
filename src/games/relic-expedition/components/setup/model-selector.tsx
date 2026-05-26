@@ -38,13 +38,16 @@ export function ModelSelector() {
 
   return (
     <div>
-      <label className="font-pixel text-sm mb-2 block text-[var(--primary)]">
+      <label
+        htmlFor="model"
+        className="font-pixel mb-1.5 block text-base text-[var(--primary)]"
+      >
         Model
       </label>
       <div className="relative">
         <select
           id="model"
-          className="w-full p-2 pr-8 appearance-none font-retro bg-[var(--background)] border-2 border-[var(--input)] pixel-shadow mb-2 text-xs focus:border-[var(--primary)] focus:outline-none"
+          className="h-10 w-full appearance-none border-2 border-[var(--input)] bg-[var(--background)] px-3 py-2 pr-8 font-retro text-sm pixel-shadow focus:border-[var(--primary)] focus:outline-none"
           value={model}
           onChange={updateModel}
         >
@@ -66,7 +69,7 @@ export function ModelSelector() {
         value={model === "__custom__" ? customModel || "" : ""}
         onChange={updateCustomModel}
         disabled={model !== "__custom__"}
-        className={`font-mono text-xs mt-2 ${
+        className={`mt-2 h-10 font-mono text-sm ${
           model !== "__custom__" ? "opacity-50 cursor-not-allowed" : ""
         }`}
       />

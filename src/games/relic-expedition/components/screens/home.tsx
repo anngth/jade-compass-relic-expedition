@@ -1,10 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import React, { useState } from "react";
 import { useGame } from "@/games/relic-expedition/context/game-context";
 import { useSettings } from "@/contexts/settings-context";
 import { toast } from "sonner";
-import { useProviderData } from "@/hooks/use-provider-data";
+import { Button } from "@/components/ui/button";
 import {
   GameHeader,
   IntroductionCard,
@@ -14,9 +15,7 @@ import {
 
 export function HomePage() {
   const { startGame } = useGame();
-  const { apiKey, isLoadingSettings, settings } = useSettings();
-  const providerData = useProviderData();
-  const { provider } = settings?.providerConfig || {};
+  const { apiKey, isLoadingSettings } = useSettings();
 
   const [showApiKey, setShowApiKey] = useState(false);
 
@@ -33,11 +32,9 @@ export function HomePage() {
   // Determine button text based on current form state
   const getStartButtonText = () => {
     if (!apiKey) {
-      return "⚠️ Enter API Key to Start";
+      return "Enter API Key";
     }
-    return `🚀 START ADVENTURE (${
-      providerData?.[provider ?? "openrouter"]?.providerName ?? "AI"
-    })`;
+    return "Start Adventure";
   };
 
   const canStart = () => {
@@ -59,14 +56,20 @@ export function HomePage() {
 
   return (
     <>
-      <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <div className="max-w-6xl w-full">
-          <GameHeader />
+      <div className="flex min-h-screen flex-col items-center justify-start px-3 py-3 sm:px-4">
+        <div className="max-w-7xl w-full">
+          <div className="mb-4 grid grid-cols-[auto_1fr_auto] items-start gap-4">
+            <Button asChild variant="outline" size="sm" className="w-fit">
+              <Link href="/">Back to Jade Compass</Link>
+            </Button>
+            <GameHeader />
+            <div className="hidden w-[164px] sm:block" aria-hidden="true" />
+          </div>
 
           {/* Two Column Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-5 lg:gap-4">
             {/* Left Column - Main Content */}
-            <div className="lg:col-span-3 flex flex-col space-y-4">
+            <div className="lg:col-span-3 flex flex-col space-y-3">
               <IntroductionCard />
               <NewAdventureCard
                 onStartGame={handleStartGame}
@@ -76,7 +79,7 @@ export function HomePage() {
             </div>
 
             {/* Right Column - Settings */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-3">
               <AIConfigurationCard
                 showApiKey={showApiKey}
                 onToggleApiKeyVisibility={() => setShowApiKey(!showApiKey)}

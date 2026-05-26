@@ -69,23 +69,23 @@ export function AIConfigurationCard({
   };
 
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle>AI Configuration</CardTitle>
-        <CardDescription className="text-xs">
+    <Card className="h-full p-4">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-xl">AI Configuration</CardTitle>
+        <CardDescription className="text-sm">
           Configure your AI provider settings
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Provider Selection */}
         <div>
-          <label className="font-pixel text-sm mb-2 block text-[var(--primary)]">
+          <label className="font-pixel mb-1.5 block text-base text-[var(--primary)]">
             Provider
           </label>
           <div className="flex space-x-2">
             <div className="relative flex-1">
               <select
-                className="w-full p-2 pr-8 appearance-none font-retro bg-[var(--background)] border-2 border-[var(--input)] pixel-shadow text-sm"
+                className="w-full p-2 pr-8 appearance-none font-retro bg-[var(--background)] border-2 border-[var(--input)] pixel-shadow text-base"
                 value={provider || "openai"}
                 onChange={updateProvider}
               >
@@ -110,7 +110,7 @@ export function AIConfigurationCard({
               type="button"
               variant="outline"
               size="sm"
-              className="px-4 font-pixel text-xs"
+              className="px-4 font-pixel text-sm"
               onClick={handleTestConnection}
               disabled={isTestingConnection || !apiKey}
             >
@@ -124,8 +124,8 @@ export function AIConfigurationCard({
         </div>
 
         {/* API Key Hint */}
-        <div className="p-2 bg-[var(--accent)]/10 rounded">
-          <p className="font-retro text-xs">
+        <div className="rounded bg-[var(--accent)]/10 p-2">
+          <p className="font-retro text-sm leading-5">
             {selectedProviderData ? (
               <>
                 Get your API key at:{" "}
@@ -144,7 +144,7 @@ export function AIConfigurationCard({
 
         {/* API Key Input */}
         <div>
-          <label className="font-pixel text-sm mb-2 block text-[var(--primary)]">
+          <label className="font-pixel mb-1.5 block text-base text-[var(--primary)]">
             API Key
           </label>
           <div className="relative">
@@ -153,7 +153,7 @@ export function AIConfigurationCard({
               placeholder="Enter your API key here"
               value={apiKey || ""}
               onChange={updateApiKey}
-              className="font-mono pr-8 text-xs"
+              className="font-mono pr-8 text-sm"
               autoComplete="off"
               data-lpignore="true"
               data-form-type="other"
@@ -172,7 +172,7 @@ export function AIConfigurationCard({
               )}
             </Button>
           </div>
-          <p className="font-retro text-xs text-[var(--muted-foreground)] mt-1">
+          <p className="font-retro mt-1.5 text-sm leading-5 text-[var(--muted-foreground)]">
             Session only — key syncs to a secure httpOnly cookie for LLM requests
           </p>
         </div>
@@ -181,28 +181,20 @@ export function AIConfigurationCard({
         <ModelSelector />
 
         {/* Additional Info */}
-        <div className="pt-4 border-t border-[var(--border)] space-y-3">
+        <div className="space-y-2.5 border-t border-[var(--border)] pt-3">
           <div className="flex items-start space-x-2">
-            <span className="text-[var(--accent)] text-sm">💾</span>
-            <p className="font-retro text-xs text-[var(--muted-foreground)]">
+            <span className="text-base text-[var(--accent)]">💾</span>
+            <p className="font-retro text-sm leading-5 text-[var(--muted-foreground)]">
               <strong>Auto-save:</strong> Game settings are saved automatically
               (API keys are excluded)
             </p>
           </div>
 
           <div className="flex items-start space-x-2">
-            <span className="text-[var(--accent)] text-sm">🔒</span>
-            <p className="font-retro text-xs text-[var(--muted-foreground)]">
+            <span className="text-base text-[var(--accent)]">🔒</span>
+            <p className="font-retro text-sm leading-5 text-[var(--muted-foreground)]">
               <strong>Security:</strong> Keys are stored in session storage and
               encrypted in an httpOnly cookie — never sent in LLM request bodies
-            </p>
-          </div>
-
-          <div className="flex items-start space-x-2">
-            <span className="text-[var(--accent)] text-sm">⚡</span>
-            <p className="font-retro text-xs text-[var(--muted-foreground)]">
-              <strong>Performance:</strong> Choose models based on your needs
-              and budget
             </p>
           </div>
         </div>

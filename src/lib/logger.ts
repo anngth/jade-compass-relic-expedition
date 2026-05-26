@@ -3,11 +3,13 @@
  * Automatically strips all logging in production builds
  */
 
+type LogArgs = unknown[];
+
 interface Logger {
-  debug: (...args: any[]) => void;
-  log: (...args: any[]) => void;
-  warn: (...args: any[]) => void;
-  error: (...args: any[]) => void;
+  debug: (...args: LogArgs) => void;
+  log: (...args: LogArgs) => void;
+  warn: (...args: LogArgs) => void;
+  error: (...args: LogArgs) => void;
   group: (label: string) => void;
   groupEnd: () => void;
 }
@@ -21,7 +23,8 @@ const browserDebugEnabled = (() => {
   try {
     const qsFlag = /(?:^|[?&])debug_logs=1(?:&|$)/.test(window.location.search);
     const lsFlag = window.localStorage.getItem("DEBUG_LOGS") === "1";
-    const globalFlag = (window as any).__DEBUG_LOGS__ === true;
+    const globalFlag =
+      (window as Window & { __DEBUG_LOGS__?: boolean }).__DEBUG_LOGS__ === true;
     return qsFlag || lsFlag || globalFlag;
   } catch {
     return false;
@@ -32,10 +35,10 @@ const createLogger = (): Logger => {
   if (isDevelopment || browserDebugEnabled) {
     const bindConsole =
       (method: keyof Console, fallback: keyof Console = "log") =>
-      (...args: any[]) => {
+      (...args: LogArgs) => {
         const fn = console[method] || console[fallback];
         if (typeof fn === "function") {
-          (fn as (...args: any[]) => void).apply(console, args);
+          (fn as (...args: LogArgs) => void).apply(console, args);
         }
       };
 

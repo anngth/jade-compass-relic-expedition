@@ -2,18 +2,15 @@ import React from "react";
 
 export function GameHeader() {
   return (
-    <div className="text-center space-y-4 mb-8">
+    <div className="flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1 text-center">
       <h1
-        className="font-pixel text-8xl text-[var(--primary)]"
-        style={{ fontSize: "4rem" }}
+        className="font-pixel text-[var(--primary)]"
+        style={{ fontSize: "clamp(1.5rem, 3vw, 2.25rem)" }}
       >
         JADE COMPASS
       </h1>
-      <p className="font-pixel text-lg text-[var(--accent)] float">
+      <p className="font-pixel text-base text-[var(--accent)] sm:text-xl">
         Relic Expedition
-      </p>
-      <p className="font-retro text-3xl text-[var(--muted-foreground)]">
-        A treasure hunting adventure awaits...
       </p>
     </div>
   );

@@ -67,7 +67,10 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
   const [isTestingConnection, setIsTestingConnection] = useState(false);
   const settingsRef = useRef(settings);
-  settingsRef.current = settings;
+
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
 
   const persistSettings = useMemo(
     () =>
